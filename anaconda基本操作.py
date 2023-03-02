@@ -21,3 +21,10 @@ pip install （安装包名称） -i http://pypi.douban.com/simple/ --trusted-ho
 豆瓣(douban) http://pypi.douban.com/simple/ 
 清华大学 https://pypi.tuna.tsinghua.edu.cn/simple/
 中国科学技术大学 http://pypi.mirrors.ustc.edu.cn/simple/
+
+
+
+pip install opencv-python -i http://pypi.douban.com/simple/ --trusted-host pypi.douban.com
+
+
+conda create -n fzp3.8 python=3.8
