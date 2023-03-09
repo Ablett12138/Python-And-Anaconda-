@@ -35,9 +35,6 @@ H1,W1=gray1.shape
 H2,W2=gray2.shape
 H3,W3=gray3.shape
 
-#创建一个窗口
-new_window=cv2.namedWindow("flag")
-
 # #将国旗展示出来
 # # 1-3  罗列3幅图片
 

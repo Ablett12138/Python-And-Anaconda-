@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import cv2
+import numpy as np
+from matplotlib import pyplot as plt
 
 #显示图像---name=windowname 
 def cv_show(name,image):
@@ -29,8 +31,16 @@ def cv_save_channel(name,image,num):
         print ("wrong!!!")
     cv_show(name,cut_img)
     return cut_img
+#最多同时显示6张五篇        
+def cv_show_multiple_imgs(images,titles,num):
+    for i in range(num):
+        plt.subplot(2,num-2,i+1),plt.imshow(images[i],'gray')
+        plt.title(titles[i])
+        plt.xticks([]),plt.yticks([])
+    plt.show()
         
         
+
 
 
 
