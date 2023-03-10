@@ -179,7 +179,7 @@ res1 =np.hstack((tophat,blackhat))
 mf.cv_show ('all',res1)
 
 #------------- 图像梯度
-#1.图像梯度-Sobel算子
+#1.                     图像梯度-Sobel算子
 #右减左 下减上   
 # cv.CV_64F====能表示负数形式
 # . ddepth:图像的深度
@@ -199,5 +199,17 @@ sobely = cv.convertScaleAbs (sobely)
 #0 为偏置项
 sobelxy = cv.addWeighted(sobelx, 0.5,sobely,0.5,0)
 
+
+#2.                        拉普拉斯算子
+laplacian = cv.Laplacian(img, cv.CV_64F)
+laplacian = cv.convertScaleAbs (laplacian)
+
+
+#3.                        scharri算子
+scharrx = cv.Scharr (img, cv.CV_64F,1,0)
+scharry = cv.Scharr(img, cv.CV_64F,0,1)
+scharrx = cv.convertScaleAbs (scharrx)
+scharry = cv.convertScaleAbs (scharry)
+scharrxy =cv.addWeighted(scharrx,0.5,scharry,0.5,0)
 
 
