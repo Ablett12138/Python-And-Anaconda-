@@ -31,7 +31,7 @@ def cv_save_channel(name,image,num):
         print ("wrong!!!")
     cv_show(name,cut_img)
     return cut_img
-#最多同时显示6张五篇        
+#最多同时显示6张        
 def cv_show_multiple_imgs(images,titles,num):
     for i in range(num):
         plt.subplot(2,num-2,i+1),plt.imshow(images[i],'gray')
