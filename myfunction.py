@@ -34,7 +34,7 @@ def cv_save_channel(name,image,num):
 #最多同时显示6张        
 def cv_show_multiple_imgs(images,titles,num):
     for i in range(num):
-        plt.subplot(2,num-2,i+1),plt.imshow(images[i],'gray')
+        plt.subplot(2,3,i+1),plt.imshow(images[i],'gray')
         plt.title(titles[i])
         plt.xticks([]),plt.yticks([])
     plt.show()
