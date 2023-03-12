@@ -1,3 +1,4 @@
+##!!!   建议采用自适应均衡化
 #1.=======   mask操作  --- 灰度直方图
 #读图像
 img = cv.imread('1.png',0)
@@ -47,3 +48,11 @@ plt.show()
 plt.subplot (121), plt.imshow(img, 'gray')
 plt.subplot (122), plt.imshow(equ,'gray')
 plt.show ()
+
+# 3.====== 图像灰度均衡化  ======自适应灰度均衡化  ***关键
+#创建自适应均衡化
+clahe = cv.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
+
+res_clahe = clahe.apply(img)
+res = np.hstack((img, equ,res_clahe))
+mf.cv_show('res',res)
