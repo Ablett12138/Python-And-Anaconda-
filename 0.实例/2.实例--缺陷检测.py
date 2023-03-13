@@ -30,11 +30,11 @@ hist1 = cv.calcHist([gray1], [0], None, [256], [0, 256])
 hist2 = cv.calcHist([gray2], [0], None, [256], [0, 256])
 
 #罗列2幅图片
-plt.subplot(1,2,1),plt.hist(hist1.ravel(), 256, [0, 256])
+plt.subplot(1,2,1),plt.hist(gray1.ravel(), 256, [0, 256])
 plt.title(titles[0])
 plt.xticks([]),plt.yticks([])
 
-plt.subplot(1,2,2),plt.hist(hist2.ravel(), 256, [0, 256])
+plt.subplot(1,2,2),plt.hist(gray2.ravel(), 256, [0, 256])
 plt.title(titles[1])
 plt.xticks([]),plt.yticks([])
 plt.show()

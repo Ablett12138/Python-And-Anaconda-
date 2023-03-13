@@ -76,7 +76,8 @@ img = cv2.imread('image.jpg', 0)
 # 计算灰度直方图
 hist = cv2.calcHist([img], [0], None, [256], [0, 256])
 # 显示灰度直方图
-plt.hist(hist.ravel(), 256, [0, 256])
+plt.hist(img.ravel(), 256, [0, 256])
+plt.plot(hist)
 plt.show()
 
 
