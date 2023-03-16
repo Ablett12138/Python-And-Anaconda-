@@ -81,7 +81,7 @@ draw_img = img.copy()
 res_1 = cv.drawContours (draw_img,[cnt], -1,(0,0,255),2)
 mf.cv_show('res_1',res_1)
 
-# 越小越接近原图
+# 越小越接近原图  --轮廓近似
 epsilon = 0.01*cv.arcLength(cnt, True)
 #近似轮廓函数  cnt--待近似的轮廓 epsilon--按照周长的百分比设置
 approx = cv.approxPolyDP(cnt, epsilon,True)

@@ -2,7 +2,7 @@
 #encoding = utf-8
 import numpy as np
 import cv2
-import myfuntion as mf
+import myfunction as mf
 import matplotlib.pyplot as plt
 
 
