@@ -29,15 +29,15 @@ plt.show()
 hist1 = cv.calcHist([gray1], [0], None, [256], [0, 256])
 hist2 = cv.calcHist([gray2], [0], None, [256], [0, 256])
 
-#罗列2幅图片
-plt.subplot(1,2,1),plt.hist(gray1.ravel(), 256, [0, 256])
-plt.title(titles[0])
-plt.xticks([]),plt.yticks([])
+# #罗列2幅图片
+# plt.subplot(1,2,1),plt.hist(hist1.ravel(), 256, [0, 256])
+# plt.title(titles[0])
+# plt.xticks([]),plt.yticks([])
 
-plt.subplot(1,2,2),plt.hist(gray2.ravel(), 256, [0, 256])
-plt.title(titles[1])
-plt.xticks([]),plt.yticks([])
-plt.show()
+# plt.subplot(1,2,2),plt.hist(hist2.ravel(), 256, [0, 256])
+# plt.title(titles[1])
+# plt.xticks([]),plt.yticks([])
+# plt.show()
 
 #滤波处理
 gray1 = cv.boxFilter(gray1,-1,(3,3),normalize=True)
@@ -51,16 +51,20 @@ gray1 = cv.dilate(gray1, kernel1,iterations = 1)
 kernel1 = np.ones ((5,5), np.uint8)
 erosion1 = cv.erode(gray1, kernel1,iterations = 1)
 
-
+# 开运算
 kernel2 = np.ones ((5,5), np.uint8)
 opening2 = cv.morphologyEx(gray2,cv.MORPH_OPEN, kernel2)
+# kernel2 = np.ones ((5,5), np.uint8)
+# gray2 = cv.dilate(gray2, kernel2,iterations = 1)
+# kernel2 = np.ones ((3,3), np.uint8)
+# erosion2 = cv.erode(gray2, kernel1,iterations = 1)
 
 #    阈值分割
 ret1,thresh1 = cv.threshold (erosion1,147,255, cv.THRESH_BINARY)
-ret2,thresh2 = cv.threshold (opening2,138,255, cv.THRESH_BINARY)
+ret2,thresh2 = cv.threshold (opening2,134,255, cv.THRESH_BINARY)
 
 
-#罗列2幅图片
+# 罗列2幅图片
 plt.subplot(1,2,1),plt.imshow(thresh1,'gray')
 plt.title(titles[0])
 plt.xticks([]),plt.yticks([])
@@ -105,16 +109,20 @@ print("<========================= 缺陷1 ============================>")
 for i in range(0,2):
     cnt=contours1[i]
     #轮廓面积
-    print("缺陷1的第",i+1,"个缺陷面积:",cv.contourArea(cnt),'pixel')
+    # print("缺陷1的第",i+1,"个缺陷面积:",cv.contourArea(cnt),'pixel')
+    print("第{}个缺陷的面积为：{:.2f}，周长为：{:.2f}".format(i+1,cv.contourArea(cnt),cv.arcLength(cnt,True)))
+
     #轮廓周长
     #周长,True表示闭合的
-    print("缺陷1的第",i+1,"个缺陷周长:",cv.arcLength(cnt, True))
+    # print("缺陷1的第",i+1,"个缺陷周长:",cv.arcLength(cnt, True))
 print("<========================= 缺陷2 ============================>")
 
 for i in range(1,3):
     cnt=contours2[i]
     #轮廓面积
-    print("缺陷2的第",i,"个缺陷面积:",cv.contourArea(cnt),'pixel')
+    # print("缺陷2的第",i,"个缺陷面积:",cv.contourArea(cnt),'pixel')
+    print("第{}个缺陷的面积为：{:.2f}，周长为：{:.2f}".format(i,cv.contourArea(cnt),cv.arcLength(cnt,True)))
+
     #轮廓周长
     #周长,True表示闭合的
-    print("缺陷2的第",i,"个缺陷周长:",cv.arcLength(cnt, True))
+    # print("缺陷2的第",i,"个缺陷周长:",cv.arcLength(cnt, True))
