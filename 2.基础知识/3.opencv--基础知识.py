@@ -2,6 +2,7 @@
 import cv2
 import numpy as np
 from matplotlib import pyplot as plt
+import myfunction as mf
 
 #------------- 1.OpenCV的顺序为B->G->R  ---------------------#
 #------------- 灰度转换 ---------------------#
