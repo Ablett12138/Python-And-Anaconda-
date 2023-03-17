@@ -4,8 +4,9 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 #显示图像---name=windowname 
-def cv_show(name,image):
-    cv.imshow(name,image)
+def cv_show(image,mod):
+    cv.namedWindow('image',mod)
+    cv.imshow('image',image)
     cv.waitKey(0)
     cv.destroyAllWindows()
 
