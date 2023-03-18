@@ -3,6 +3,123 @@ import cv2 as cv
 import numpy as np
 from matplotlib import pyplot as plt
 
+
+#-------   RANCSAC算法匹配  -----#
+class stitcher:
+    #拼接函数
+    def stitch(self,images,ratio=0.75,reprojThresh=4.0,showMatches=False):
+       #获取输入图片
+        (imageA,imageB) = images
+        #检测A、B图片的SIFT关键特征点,并计算特征描述子
+        (kpsA, featuresA,grayA) = self.detectAndDescribe(imageA)
+        (kpsB, featuresB,grayB) = self.detectAndDescribe(imageB)
+        #匹配两张图片的所有特征点,返回匹配结果
+        M= self.matchKeypoints(kpsA,kpsB,featuresA,featuresB,grayA,grayB,ratio,reprojThresh)
+        #如果返回结果为空,没有匹配成功的特征点,退出算法
+        if M is None:
+            return None
+        #否则,提取匹配结果#H是3x3视角变换矩阵
+        (H,good,matchesMask) =M
+        #将图片A进行视角变换, result是变换后图片
+        result = cv.warpPerspective(imageA,H,(imageA.shape[1] + imageB.shape[1],imageA.shape[0]))
+        cv_show(result,cv.WINDOW_NORMAL)
+        #将图片B传入result图片最左端
+        # print(imageA.shape[1])
+        # print(imageB.shape[1])
+        # print(result.shape[0],result.shape[1])
+        result[0:imageA.shape[0],imageA.shape[1]:imageA.shape[1]+imageB.shape[1]] = imageB
+        cv_show(result,cv.WINDOW_NORMAL)
+        #检测是否需要显示图片匹配
+        if showMatches==True:
+            draw_params = dict(matchColor = (0,255,0), # draw matches in green color
+            singlePointColor = None,
+            matchesMask = matchesMask, # draw only inliers
+            flags = 2)
+            result = cv.drawMatches(grayA,kpsA,grayB,kpsB,good,None,**draw_params)
+            return result
+
+    def detectAndDescribe(self, image) :
+        #将彩色图片转换成灰度图
+        gray = cv.cvtColor(image,cv.COLOR_BGR2GRAY)
+        #建立SIFT生成器
+        descriptor = cv.SIFT_create()
+        #检测SIFT特征点,并计算描述子
+        (kps,features) = descriptor.detectAndCompute(image,None)
+        #将结果转换成NumPy数组
+        # kps = np.float32([kp.pt for kp in kps])
+        #返回特征点集,及对应的描述特征
+        return (kps,features,gray)
+    
+    def matchKeypoints(self,kpsA,kpsB,featuresA,featuresB,imgA,imgB,ratio,reprojThresh):
+        MIN_MATCH_COUNT = 10
+        FLANN_INDEX_KDTREE = 0
+        index_params = dict(algorithm = FLANN_INDEX_KDTREE, trees = 5)
+        search_params = dict(checks = 50)
+        flann = cv.FlannBasedMatcher(index_params, search_params)
+        matches = flann.knnMatch(featuresA,featuresB,k=2)
+        # store all the good matches as per Lowe's ratio test.
+        good = []
+        for m,n in matches:
+            if m.distance < ratio*n.distance:
+                good.append(m)
+        if len(good)>MIN_MATCH_COUNT:
+            # 获取关键点的坐标
+            src_pts = np.float32([kpsA[m.queryIdx].pt for m in good]).reshape(-1,1,2)
+            dst_pts = np.float32([kpsB[m.trainIdx].pt for m in good]).reshape(-1,1,2)
+            # 第三个参数 Method used to computed a homography matrix. The following methods are possible:
+            #0 - a regular method using all the points
+            #CV_RANSAC - RANSAC-based robust method
+            #CV_LMEDS - Least-Median robust method
+            # 第四个参数取值范围在 1 到 10，拒绝一个点对的阈值。原图像的点经过变换后点与目标图像上对应点的误差
+            # 超过误差就认为是 outlier
+            # 返回值中 M 为变换矩阵。
+            H, mask = cv.findHomography(src_pts, dst_pts, cv.RANSAC,reprojThresh)
+            matchesMask = mask.ravel().tolist()
+            # # 获得原图像的高和宽
+            # h,w = imgA.shape
+            # # 使用得到的变换矩阵对原图像的四个角进行变换，获得在目标图像上对应的坐标。
+            # pts = np.float32([ [0,0],[0,h-1],[w-1,h-1],[w-1,0] ]).reshape(-1,1,2)
+            # dst = cv.perspectiveTransform(pts,M)
+            # # 原图像为灰度图
+            # cv.polylines(imgB,[np.int32(dst)],True,255,10, cv.LINE_AA)
+            return (H,good,matchesMask)
+        else:
+            print ("Not enough matches are found - %d/%d",(len(good),MIN_MATCH_COUNT))
+            matchesMask = None
+            return 
+        # draw_params = dict(matchColor = (0,255,0), # draw matches in green color
+        # singlePointColor = None,
+        # matchesMask = matchesMask, # draw only inliers
+        # flags = 2)
+        # img3 = cv.drawMatches(img1,kp1,img2,kp2,good,None,**draw_params)
+        # plt.imshow(img3, 'gray'),plt.show()
+        
+
+
+#k对最佳匹配
+def myFeature_matchingK(img1,img2):
+    # 创建sift
+    sift = cv.SIFT_create()
+
+    #得到关键点
+    kp1,des1 = sift.detectAndCompute(img1,None)
+    kp2,des2 = sift.detectAndCompute(img2,None)
+
+    #-------------------------   k对最佳匹配   --------------------------#
+    bf = cv.BFMatcher()
+    matches = bf.knnMatch(des1,des2,k=2)
+
+    good = []
+    for m, n in matches:
+        if m.distance< 0.75*n.distance:
+            good.append([m])
+
+    result = cv.drawMatchesKnn(img1, kp1,img2, kp2,good,None,flags=2)
+
+    return result
+
+
+
 #显示图像---name=windowname 
 def cv_show(image,mod):
     cv.namedWindow('image',mod)
@@ -74,6 +191,7 @@ def cv_image_resize(image,width=None,height=None,inter=cv.INTER_AREA):
     resized = cv.resize( image, dim,interpolation=inter)
     return resized
 
+#提取四个端点
 def order_points(pts):
     tl=pts[1]
     tr=pts[0]
@@ -97,7 +215,7 @@ def order_points(pts):
 #     return rect
 
 
-
+#四个端点透视变换  需要原图和需要变换的区域图
 def four_point_transform(image,pts):
     #获取输入坐标
     rect = order_points(pts)

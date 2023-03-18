@@ -3,6 +3,10 @@ import cv2
 import numpy as np
 from matplotlib import pyplot as plt
 import myfunction as mf
+#-------------- 宽和高的概念 -------------#
+imageA[H,W]
+cv2.warpPerspective(imageA,imageB,(W,H))
+image.shape=w,h,c
 
 #------------- 1.OpenCV的顺序为B->G->R  ---------------------#
 #------------- 灰度转换 ---------------------#
