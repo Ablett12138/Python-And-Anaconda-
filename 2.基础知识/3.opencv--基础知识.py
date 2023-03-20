@@ -115,7 +115,28 @@ res =np.hstack((blur, aussian, median))
 mf.cv_show ('all',res)
 
 
-
+##------------- 一种显示图像加直方图的方法
+#图像集
+images = [img, 0, th1, img, 0, th2, blur, 0, th3]
+#标题集
+titles = ['Original', 'Histogram', 'Global(v=100)','Original', 'Histogram', "Otsu's",'Gaussian filtered Image', 'Histogram', "Otsu's"]
+for i in range(3):
+    # 绘制原图
+    plt.subplot(3, 3, i*3 + 1)
+    plt.imshow(images[i*3], 'gray')
+    plt.title(titles[i*3], fontsize=8)
+    plt.xticks([]), plt.yticks([])
+    # 绘制直方图 plt.hist， ravel 函数将数组降成一维
+    plt.subplot(3, 3, i*3 + 2)
+    plt.hist(images[i*3].ravel(), 256)
+    plt.title(titles[i*3 + 1], fontsize=8)
+    plt.xticks([]), plt.yticks([])
+    # 绘制阈值图
+    plt.subplot(3, 3, i*3 + 3)
+    plt.imshow(images[i*3 + 2], 'gray')
+    plt.title(titles[i*3 + 2], fontsize=8)
+    plt.xticks([]), plt.yticks([])
+plt.show()
 
 
 
