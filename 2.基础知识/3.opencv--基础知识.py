@@ -8,6 +8,10 @@ imageA[H,W]
 cv2.warpPerspective(imageA,imageB,(W,H))
 image.shape=w,h,c
 
+#-------------- 显示文字 -------------#
+font=cv2.FONT_HERSHEY_SIMPLEX
+cv2.putText(img,'OpenCV',(10,500), font, 4,(255,255,255),2)
+
 #------------- 1.OpenCV的顺序为B->G->R  ---------------------#
 #------------- 灰度转换 ---------------------#
 image = cv2.imread('china.jpg')
