@@ -24,7 +24,7 @@ pip install （安装包名称） -i http://pypi.douban.com/simple/ --trusted-ho
 
 
 
-pip install opencv-contrib-python -i http://pypi.douban.com/simple/ --trusted-host pypi.douban.com
+pip install pandas -i http://pypi.douban.com/simple/ --trusted-host pypi.douban.com
 
 
 conda create -n fzp3.8 python=3.8
