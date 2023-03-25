@@ -121,7 +121,7 @@ def myFeature_matchingK(img1,img2):
 
 
 #显示图像---name=windowname 
-def cv_show(image,mod):
+def cv_show(image,mod=cv.WINDOW_NORMAL):
     cv.namedWindow('image',mod)
     cv.imshow('image',image)
     cv.waitKey(0)
