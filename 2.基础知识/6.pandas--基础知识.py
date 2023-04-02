@@ -134,3 +134,179 @@ print(数据)
 # 数据.sort_index() #按索引排序
 # 数据.sort_values() #按数值排序
 
+print('# ------------------------------    DataFrame是一个表格型的数据结构  ----------------------------------#')
+# 每列可以是不同的值类型（数值、字符串、布尔值等）
+# • 既有行索引index，也有列索引columns
+# • 可以被看做由Series组成的字典
+# DataFrame是一个表格型的数据结构
+# 创建DataFrame最常用的方法，参考读取CSV、 TXT、 Excel、 MySQL等
+
+数据=pd.DataFrame([[1,2,3],[4,5,6],[7,8,9]],columns=['a','b','c'])
+print(数据)
+
+# a列0行的表现方法
+
+print(数据['a'][0] )
+
+# a. 数据.loc方法：根据行，列的标签值查询
+# b. 数据.iloc方法：根据行，列的数字位置查询
+
+# loc就根据这个index来索引对应的行。
+print(数据.loc[0]['a'] )
+# iloc并不是根据index来索引，而是根据行号来索引，行号从0开始，逐次加1。
+print(数据.iloc[0][0] )
+
+# 输出 a列和b列
+print(数据[['a','b']])
+
+
+# 3.2.1 多个字典序列创建DataFrame
+
+字典 = {
+'姓名':['孙兴华','李小龙','叶问'],
+'年龄':[20,80,127],
+'功夫':['撸铁','截拳道','咏春']
+}
+数据 = pd.DataFrame(字典)
+print(数据)
+print(数据.dtypes) # 返回每一列的类型
+print(数据.columns) # 返回列索引，以列表形式返回： [列名1，列名2， …]
+print(数据.index) # 返回行索引，（起始，结束，步长）
+# • 如果只查询一列，返回的是pd.Series
+# 3.2.2 从DataFrame中查询出Series
+print(数据['姓名']) # 返回索引和这一列数据
+# • 如果只查询一行，返回的是pd.Series
+type(数据['姓名']) # 类型返回Series
+print(数据.loc[1]) # 这时，它的索引是列名
+print(数据.loc[1]['姓名']) #指定行和列查找
+# • 如果查询多列，返回的是pd.DataFrame
+type(数据.loc[1]) # 类型返回Series
+print(数据[['姓名','年龄']]) # 返回索引和这两列数据
+# • 如果查询多行，返回的是pd.DataFrame
+type(数据[['姓名','年龄']]) # 类型返回DataFrame
+print(数据.loc[1:3]) # 返回前3行，包括结束值
+type(数据.loc[1:3]) # 类型返回DataFrame
+
+
+# 3.2.3 将多个Series加入DataFrame
+# 注： 3个数据的index他有对齐的功能，例如把数据3的index改成2， 3， 4，没有值的地方会显示nan
+数据1 = pd.Series(['叶问','李小龙','孙兴华'],index=[1,2,3],name='姓名')
+数据2 = pd.Series(['男','男','男'],index=[1,2,3],name='性别')
+数据3 = pd.Series([127,80,20],index=[1,2,3],name='年龄')
+表1 = pd.DataFrame({数据1.name:数据1,数据2.name:数据2,数据3.name:数据3})
+print(表1)
+表2 = pd.DataFrame([数据1,数据2,数据3])
+print(表2)
+
+#             常用方法
+数据.head( 5 ) #查看前5行
+数据.tail( 3 ) #查看后3行
+数据.values #查看数值
+数据.shape #查看行数、列数
+数据.fillna(0) #将空值填充0
+数据.replace( 1, -1) #将1替换成-1
+数据.isnull() #查找数据中出现的空值
+数据.notnull() #非空值
+数据.dropna() #删除空值
+# 数据.unique() #查看唯一值
+数据.reset_index() #修改、删除，原有索引，详见例1
+数据.columns #查看数据的列名
+数据.index #查看索引
+数据.sort_index() #索引排序
+# 数据.sort_values() #值排序
+pd.merge(数据1,数据1) #合并
+pd.concat([数据1,数据2]) #合并，与merge的区别，自查
+# pd.pivot_table( 数据 ) #用df做数据透视表（类似于Excel的数透）
+
+print('# ------------------------------   merge函数的使用  ----------------------------------#')
+# 首先merge的操作非常类似sql里面的join，实现将两个Dataframe根据一些共有的列连接起来，当然，在实际场景中，这些共有列一般是Id，
+# 连接方式也丰富多样，可以选择inner(默认)，left,right,outer 这几种模式，分别对应的是内连接，左连接，右连接，全外连接
+
+
+数据1= pd.DataFrame({'姓名':['叶问','李小龙','孙兴华','李小龙','叶问','叶问'],'出手次数1':np.arange(6)})
+数据2 = pd.DataFrame({'姓名':['黄飞鸿','孙兴华','李小龙'],'出手次数2':[1,2,3]})
+数据3 = pd.merge(数据1,数据2)
+print(数据3)
+数据3 = pd.merge(数据1,数据2,on='姓名',how='inner')
+print(数据3)
+
+数据3 = pd.merge(数据1,数据2,on='姓名',how='left')
+print(数据3)
+
+数据3 = pd.merge(数据1,数据2,on='姓名',how='right')
+print(数据3)
+
+
+数据3 = pd.merge(数据1,数据2,on='姓名',how='outer')
+print(数据3)
+
+print('# ------------------------------   join函数的使用  ----------------------------------#')
+# 其实通过这一个小例子大家也就明白了，join无非就是合并，默认是横向，还有一个点需要注意的是，我们其实可以通过join实现和merge一样的效果，但是为了
+# 避免混淆，我不会多举其他的例子了，因为我个人认为一般情况下还是用merge函数好一些
+左字典={'姓名1':['叶问','李小龙','孙兴华'],'年龄1':[127,80,20]}
+右字典={'姓名2':['大刀王五','霍元甲','陈真'],'年龄2':[176,152,128]}
+左 = pd.DataFrame(左字典)
+右 = pd.DataFrame(右字典)
+print(左.join(右))
+
+print('# ------------------------------   concat函数的使用  ----------------------------------#')
+arr = np.arange(9).reshape((3,3))
+print(arr)
+# 按照axis=1轴拼接 -- 列
+arr1 = np.concatenate([arr,arr],axis=1)
+print(arr1)
+# 按照axis=0轴拼接 -- 行
+arr2 = np.concatenate([arr,arr],axis=0)
+print(arr2)
+
+# 分别创建了两个没有重复Index的Series,然后用concat默认的把它们合并在一起，这时生成的依然是Series类型，
+数据1 = pd.Series([0,1,2],index=['A','B','C'])
+数据2 = pd.Series([3,4],index=['D','E'])
+数据3 = pd.concat([数据1,数据2])
+print(数据3)
+# 如果我们把axis换成1，那生成
+# 的就是Dataframe,像下面一样
+数据4 = pd.concat([数据1,数据2],axis=1,sort =True) # sort=Ture是默认的，pandas总是默认index排序，默认axis=0
+print(数据4)
+
+
+# 1.相同字段收尾连接
+# frames = [df1, df2, df3]
+# result = pd.concat(frames)
+
+# 2.要在相接的时候在加上一个层次的key来识别数据源自于哪张表，可以增加key参数
+# result = pd.concat(frames, keys=['x', 'y', 'z'])
+
+# 3.当axis = 1的时候，concat就是行对齐，然后将不同列名称的两张表合并
+# result = pd.concat([df1, df4], axis=1)
+
+# 4.加上join参数的属性，如果为’inner’得到的是两表索引的交集，如果是outer，得到的是两表的并集。
+# result = pd.concat([df1, df4], axis=1, join='inner')
+
+# 5.如果有join_axes的参数传入，可以指定根据那个轴来对齐数据
+# 例如根据df1表对齐数据，就会保留指定的df1表的轴，然后将df4的表与之拼接
+# result = pd.concat([df1, df4], axis=1, join_axes=[df1.index])
+
+print('# ------------------------------   合并的同时增加区分数据组的键  ----------------------------------#')
+# 1.要在相接的时候在加上一个层次的key来识别数据源自于哪张表，可以增加key参数
+# result = pd.concat(frames, keys=['x', 'y', 'z'])
+
+# 2.传入字典来增加分组键  ----====---等价于 # result = pd.concat(frames, keys=['x', 'y', 'z'])
+# pieces = {'x': df1, 'y': df2, 'z': df3}
+# result = pd.concat(pieces)
+
+
+
+print('# ------------------------------   append函数的使用  ----------------------------------#')
+# 1.append是series和dataframe的方法，使用它就是默认沿着列进行凭借（axis = 0，列对齐）
+# result = df1.append(df2)
+
+# 2.如果两个表的index都没有实际含义，使用ignore_index参数，置true，合并的两个表就是根据列字段对齐，然后合并。最后再重新整理一个新的index。
+
+# 3.append方法可以将 series 和 字典的数据作为dataframe的新一行插入
+# s2 = pd.Series(['X0', 'X1', 'X2', 'X3'], index=['A', 'B', 'C', 'D'])
+# result = df1.append(s2, ignore_index=True)
+
+# 4.如果遇到两张表的列字段本来就不一样，但又想将两个表合并，其中无效的值用nan来表示。那么可以使用ignore_index来实现
+# dicts = [{'A': 1, 'B': 2, 'C': 3, 'X': 4}, {'A': 5, 'B': 6, 'C': 7, 'Y': 8}]
+# result = df1.append(dicts, ignore_index=True)
