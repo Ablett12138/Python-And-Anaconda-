@@ -248,3 +248,135 @@ def four_point_transform(image,pts):
     return warped
 
 
+
+def yumi_count(img,thre):
+    # img = cv.imread(t_)
+    font = cv.FONT_HERSHEY_COMPLEX
+    kernel = np.ones((5,5), np.uint8)
+ 
+    h,w,c = img.shape
+    img = cv.resize(img,(int(1000*(w/h)),1000))#(w,h)
+    # cv.imshow('ori', img)
+    
+
+    gray_img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)  # 灰度处理
+    # cv.imshow('gray_img', gray_img)
+    ret, th1 = cv.threshold(gray_img, thre, 255, cv.THRESH_BINARY)
+    cv_show(th1)
+    # cv.imshow('th1', th1)
+    erosion = cv.erode(th1, kernel, iterations=1)  # 腐蚀
+    # cv.imshow('erosion', erosion)
+    dist_img = cv.distanceTransform(erosion, cv.DIST_L1, cv.DIST_MASK_3)  # 距离变换
+    # cv.imshow('ditancechange', dist_img)
+    dist_output = cv.normalize(dist_img, 0, 1.0, cv.NORM_MINMAX)  # 归一化  这里的归一化取得了什么效果？
+    a = 130 #显示程度
+    b = 0.23#腐蚀程度  多次参数调整也无法避免籽粒出现粘连的情况
+ 
+    # cv.imshow('dist_output', dist_output * a)
+ 
+    ret, th2 = cv.threshold(dist_output*a, b, 255, cv.THRESH_BINARY)#这里调整系数 发现a = 120 b = 0.27比较符合正常的籽粒大小
+    # cv.imshow('th2', th2)
+ 
+    kernel = np.ones((3,3), np.uint8)
+    opening = cv.morphologyEx(th2, cv.MORPH_OPEN, kernel)
+ 
+    # cv.imshow('opening', opening)
+    opening = np.array(opening, np.uint8)
+    contours, hierarchy = cv.findContours(opening, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)  # 轮廓提取
+ 
+    count_ = 0
+    Allarea_circle = 0
+ 
+    for cnt in contours:
+        (x, y), radius = cv.minEnclosingCircle(cnt)#画圆
+        center = (int(x), int(y))#中心点
+        radius = int(radius)#半径
+        # circle1_img = cv.circle(opening, center, radius, (128,0,128), 2)
+        # cv.imshow('circle1_img',circle1_img)#黑白图的实际结果 测试用
+        cv.circle(img, center, radius, (128, 0, 128), 1)#画圆
+ 
+        # circle_img = cv.circle(img, center, radius, (128,0,128), 1)#画圆
+        # cv.imshow('circle_img',circle_img)
+ 
+        area_circle=3.14*radius*radius
+        Allarea_circle +=area_circle
+        count_ += 1
+    aver_area_circle = Allarea_circle / count_#计算平均玉米粒外接圆半径
+ 
+    count = 0
+    for cnt in contours:#在这里使用外接圆的面积来增加容错率
+        (x, y), radius = cv.minEnclosingCircle(cnt)
+        center = (int(x), int(y))
+        radius = int(radius)
+        area_circle=3.14*radius*radius
+ 
+        if area_circle>=2*aver_area_circle:#判断两个籽粒黏连的情况
+ 
+            img = cv.putText(img, str(count)+'  '+str(count+1), center, font, 0.5, (0, 0, 255))
+            count += 2#半径过大就算作两个
+        else:
+            img = cv.putText(img, str(count), center, font, 0.5, (0, 0, 255))
+            count += 1
+ 
+    img=cv.putText(img,('Findall='+str(count)),(10,40),font,1,(0,20,255),2)#添加文字到图上 总数
+ 
+    cv.imshow('circle_img',img)
+    cv.waitKey(0)
+    cv.destroyAllWindows()
+ 
+    return count
+
+def fenshuiling(gray,a):
+    # 灰度化
+    # 自适应反转阈值分割
+    ret, thresh = cv.threshold(gray, 0, 255, cv.THRESH_BINARY_INV + cv.THRESH_OTSU)
+    # cv_show(thresh)
+    # 开运算
+    k = np.ones((6, 6), dtype=np.uint8)
+    opening = cv.morphologyEx(thresh, cv.MORPH_OPEN, k, iterations=3)
+
+    # 像素距离计算   
+    # dist = cv.distanceTransform(src=gaussian_hsv, distanceType=cv.DIST_L2, maskSize=5)
+    distTransform = cv.distanceTransform(opening, cv.DIST_L2, 5)
+    # 阈值分割
+    ret, fore = cv.threshold(distTransform, a*distTransform.max(), 255, 0)
+    # 背景计算
+    bg = cv.dilate(opening, k, iterations=3)
+    # 连通体计算
+    # 前景
+    fore = np.uint8(fore)
+    num, markets = cv.connectedComponents(fore)
+
+    unknown = cv.subtract(bg, fore)
+    markets = markets + 1
+    markets[unknown == 255] = 0
+    # 分水岭算法
+    img=cv.cvtColor(gray,cv.COLOR_GRAY2BGR)
+    markets = cv.watershed(img, markets)
+    # print(markets)
+    img[markets == -1] = [255, 0, 0]
+    # cv_show(img)
+    return num
+
+def HSV_Mask(img_lenna,lower,upper):
+    # 转换到HSV颜色空间
+    img_hsv = cv.cvtColor(img_lenna, cv.COLOR_BGR2HSV)
+ 
+    # 设置红色边界 (保留黄色)
+    lower_1 = lower
+    upper_1 = upper
+ 
+ 
+    # 获取掩码范围
+    mask = cv.inRange(img_hsv, lower_1, upper_1)
+ 
+ 
+    # 维度扩充并归一化
+    mask = cv.merge([mask, mask, mask]) // 255
+ 
+    # 图像掩码处理
+    img_red = img_hsv * mask
+    
+    # 转换为BGR通道
+    img_bgr = cv.cvtColor(img_red, cv.COLOR_HSV2BGR)
+    return img_bgr
